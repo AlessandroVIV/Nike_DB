@@ -12,8 +12,6 @@ public class ColoriDisponibili {
     @JsonIgnore
     private Long id;
 
-    // gigi basta basta così
-
     private String colore;
 
     @ManyToOne
