@@ -16,7 +16,7 @@ public class ColoriDisponibili {
 
     @ManyToOne
     @JoinColumn(name = "prodotto_id", nullable = false)
-    @JsonIgnore
+    @JsonBackReference
     private Prodotto prodotto;
 
     public ColoriDisponibili(){}

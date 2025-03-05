@@ -1,6 +1,8 @@
 package com.project.Nike_DB.model;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 
@@ -13,17 +15,25 @@ public class Recensione {
     @JsonIgnore
     private long id;
 
+    @Column(name = "titolo_recensione")
     private String titoloRecensione;
+
+    @Column(name = "data_recensione")
+    @JsonFormat(pattern = "dd MMM yyyy", locale = "it_IT", shape = JsonFormat.Shape.STRING)
     private LocalDate dataRecensione;
+
+    @Column(name = "recensore")
     private String recensore;
+
+    @Column(name = "recensione")
     private String recensione;
 
     @ManyToOne
     @JoinColumn(name = "prodotto_id", nullable = false)
-    @JsonIgnore
-    public Prodotto prodotto;
+    @JsonBackReference
+    private Prodotto prodotto;
 
-    public Recensione(){}
+    public Recensione() {}
 
     public Recensione(long id, String titoloRecensione, LocalDate dataRecensione, String recensore, String recensione, Prodotto prodotto) {
         this.id = id;

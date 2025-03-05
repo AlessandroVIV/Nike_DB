@@ -1,31 +1,31 @@
 package com.project.Nike_DB.controller;
 
-import com.project.Nike_DB.model.Prodotto;
+import com.project.Nike_DB.DTO.ProdottoDTO;
+import com.project.Nike_DB.model.*;
+import com.project.Nike_DB.repository.*;
 import com.project.Nike_DB.services.ProdottoService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.lang.annotation.Repeatable;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/prodotti")
 public class ProdottoRestController {
 
     private final ProdottoService prodottoService;
+    private final NikeRepository nikeRepository;
 
-    public ProdottoRestController(ProdottoService prodottoService){
+    public ProdottoRestController(ProdottoService prodottoService, NikeRepository nikeRepository){
         this.prodottoService = prodottoService;
-    }
-
-    @GetMapping
-    public ResponseEntity<?> getAllProdotti(){
-        List<Prodotto> prodotto = prodottoService.getAllProdotti();
-        return ResponseEntity.ok().body(prodotto);
+        this.nikeRepository = nikeRepository;
     }
 
     @GetMapping("/{id}")
@@ -89,6 +89,12 @@ public class ProdottoRestController {
 //        return ResponseEntity.ok().body(prodotto);
 //    }
 
+    @GetMapping
+    public ResponseEntity<?> getAllProdotti(){
+        List<Prodotto> prodotto = prodottoService.getAllProdotti();
+        return ResponseEntity.ok().body(prodotto);
+    }
+
     @GetMapping("/genere/{genere}")
     public List<Prodotto> getProdottiByGenere(@PathVariable String genere) {
         return prodottoService.getProdottiByGenere(genere);
@@ -107,6 +113,12 @@ public class ProdottoRestController {
     @GetMapping("/nuovoArrivo")
     public List<Prodotto> getNuoviArrivi() {
         return prodottoService.getNuoviArrivi();
+    }
+
+    @PostMapping
+    public ResponseEntity<Prodotto> createProdotto(@RequestBody ProdottoDTO prodottoDTO) {
+        Prodotto prodottoSalvato = prodottoService.convertitoreDTO(prodottoDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(prodottoSalvato);
     }
 
 }

@@ -1,10 +1,12 @@
 package com.project.Nike_DB.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -23,20 +25,25 @@ public class Prodotto {
     private String genere;
 
     @OneToMany(mappedBy = "prodotto", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TaglieDisponibili> taglieDisponibili;
+    @JsonManagedReference
+    private List<TaglieDisponibili> taglieDisponibili = new ArrayList<>();
 
     @OneToMany(mappedBy = "prodotto", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ColoriDisponibili> coloriDisponibili;
+    @JsonManagedReference
+    private List<ColoriDisponibili> coloriDisponibili = new ArrayList<>();
 
     @OneToMany(mappedBy = "prodotto", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Immagini> immagini;
+    @JsonManagedReference
+    private List<Immagini> immagini = new ArrayList<>();
 
     @OneToMany(mappedBy = "prodotto", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Recensione> recensioni;
+    @JsonManagedReference
+    private List<Recensione> recensioni = new ArrayList<>();
 
-    public Prodotto(){}
+    public Prodotto() {}
 
-    public Prodotto(Long id, String nome, String categoria, double prezzo, String descrizione, boolean nuovoArrivi, Integer bestSeller, String genere, List<TaglieDisponibili> taglieDisponibili, List<ColoriDisponibili> coloriDisponibili, List<Immagini> immagini) {
+    public Prodotto(Long id, String nome, String categoria, double prezzo, String descrizione, boolean nuovoArrivi, Integer bestSeller, String genere,
+                    List<TaglieDisponibili> taglieDisponibili, List<ColoriDisponibili> coloriDisponibili, List<Immagini> immagini, List<Recensione> recensioni) {
         this.id = id;
         this.nome = nome;
         this.categoria = categoria;
@@ -45,9 +52,10 @@ public class Prodotto {
         this.nuovoArrivi = nuovoArrivi;
         this.bestSeller = bestSeller;
         this.genere = genere;
-        this.taglieDisponibili = taglieDisponibili;
-        this.coloriDisponibili = coloriDisponibili;
-        this.immagini = immagini;
+        this.taglieDisponibili = taglieDisponibili != null ? taglieDisponibili : new ArrayList<>();
+        this.coloriDisponibili = coloriDisponibili != null ? coloriDisponibili : new ArrayList<>();
+        this.immagini = immagini != null ? immagini : new ArrayList<>();
+        this.recensioni = recensioni != null ? recensioni : new ArrayList<>();
     }
 
     public Long getId() {
@@ -142,11 +150,13 @@ public class Prodotto {
         return recensioni;
     }
 
-    public void setRecensioni(List<Recensione> recensione) {
+    public void setRecensioni(List<Recensione> recensioni) {
         this.recensioni = recensioni;
     }
 
-
 }
+
+
+
 
 
