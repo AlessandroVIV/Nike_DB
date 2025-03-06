@@ -7,7 +7,9 @@ import com.project.Nike_DB.repository.RecensioniRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -55,7 +57,7 @@ public class ProdottoService {
         prodotto.setPrezzo(prodottoDTO.getPrezzo());
         prodotto.setDescrizione(prodottoDTO.getDescrizione());
         prodotto.setNuovoArrivi(prodottoDTO.isNuovoArrivi());
-        prodotto.setBestSeller(prodottoDTO.getBestSeller());
+        prodotto.setBestSeller(prodottoDTO.getBestSeller() != null ? prodottoDTO.getBestSeller() : 0);
         prodotto.setGenere(prodottoDTO.getGenere());
 
         List<TaglieDisponibili> taglie = prodottoDTO.getTaglieDisponibili().stream()
@@ -70,20 +72,21 @@ public class ProdottoService {
                 .map(img -> new Immagini(null, img, prodotto))
                 .collect(Collectors.toList());
 
-        List<Recensione> recensioni =
-                prodottoDTO.getRecensioni()
-                        .stream()
-                .map(r -> new Recensione
-                        (0, r.getTitoloRecensione(), LocalDate.parse(r.getDataRecensione()),
-                                r.getRecensore(), r.getRecensione(), prodotto))
+        List<Recensione> recensioni = prodottoDTO.getRecensioni().stream()
+                .map(r -> new Recensione(
+                        0,
+                        r.getTitoloRecensione(),
+                        LocalDate.parse(r.getDataRecensione(), DateTimeFormatter.ofPattern("d MMM yyyy", Locale.ITALIAN)),
+                        r.getRecensore(),
+                        r.getRecensione(),
+                        prodotto
+                ))
                 .collect(Collectors.toList());
 
         prodotto.setTaglieDisponibili(taglie);
         prodotto.setColoriDisponibili(colori);
         prodotto.setImmagini(immagini);
         prodotto.getRecensioni().addAll(recensioni);
-
-        Prodotto prodottoSalvato = nikeRepository.save(prodotto);
 
         return nikeRepository.save(prodotto);
 

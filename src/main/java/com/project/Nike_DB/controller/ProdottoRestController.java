@@ -116,9 +116,13 @@ public class ProdottoRestController {
     }
 
     @PostMapping
-    public ResponseEntity<Prodotto> createProdotto(@RequestBody ProdottoDTO prodottoDTO) {
-        Prodotto prodottoSalvato = prodottoService.convertitoreDTO(prodottoDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(prodottoSalvato);
+    public ResponseEntity<List<Prodotto>> createProdotti(@RequestBody List<ProdottoDTO> prodottiDTO) {
+        List<Prodotto> prodottiSalvati = prodottiDTO.stream()
+                .map(prodottoService::convertitoreDTO)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(prodottiSalvati);
     }
+
 
 }
