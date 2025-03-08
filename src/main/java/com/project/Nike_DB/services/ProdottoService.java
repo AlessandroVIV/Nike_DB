@@ -99,7 +99,6 @@ public class ProdottoService {
         if (prodotto.getRecensioni() != null && !prodotto.getRecensioni().isEmpty()) {
 
             for (Recensione recensione : prodotto.getRecensioni()) {
-                System.out.println("Salvando recensione: " + recensione.getTitoloRecensione());
                 recensione.setProdotto(prodottoSalvato);
                 recensioniRepository.save(recensione);
             }
