@@ -92,23 +92,6 @@ public class ProdottoService {
 
     }
 
-    public Prodotto saveProdotto(Prodotto prodotto) {
-
-        Prodotto prodottoSalvato = nikeRepository.save(prodotto);
-
-        if (prodotto.getRecensioni() != null && !prodotto.getRecensioni().isEmpty()) {
-
-            for (Recensione recensione : prodotto.getRecensioni()) {
-                recensione.setProdotto(prodottoSalvato);
-                recensioniRepository.save(recensione);
-            }
-
-        }
-
-        return prodottoSalvato;
-
-    }
-
 }
 
 //    // GET PRODOTTI
