@@ -43,7 +43,45 @@ public class ProdottoRestController {
 
     }
 
-    //    // Chiamo tutti i prodotti
+    @GetMapping
+    public ResponseEntity<?> getAllProdotti(){
+        List<Prodotto> prodotto = prodottoService.getAllProdotti();
+        return ResponseEntity.ok().body(prodotto);
+    }
+
+    @GetMapping("/genere/{genere}")
+    public List<Prodotto> getProdottiByGenere(@PathVariable String genere) {
+        return prodottoService.getProdottiByGenere(genere);
+    }
+
+    @GetMapping("/categoria/{categoria}")
+    public List<Prodotto> getProdottiByCategoria(@PathVariable String categoria) {
+        return prodottoService.getProdottiByCategoria(categoria);
+    }
+
+    @GetMapping("/bestSeller/{bestSeller}")
+    public List<Prodotto> getProdottiByBestSeller(@PathVariable Integer bestSeller) {
+        return prodottoService.getProdottiByBestSeller(bestSeller);
+    }
+
+    @GetMapping("/nuovoArrivo")
+    public List<Prodotto> getNuoviArrivi() {
+        return prodottoService.getNuoviArrivi();
+    }
+
+    @PostMapping
+    public ResponseEntity<List<Prodotto>> createProdotti(@RequestBody List<ProdottoDTO> prodottiDTO) {
+        List<Prodotto> prodottiSalvati = prodottiDTO.stream()
+                .map(prodottoService::convertitoreDTO)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(prodottiSalvati);
+    }
+
+
+}
+
+//    // Chiamo tutti i prodotti
 //
 //    @GetMapping
 //    public ResponseEntity<?> getAllProdotti(){
@@ -88,41 +126,3 @@ public class ProdottoRestController {
 //        Prodotto prodotto = prodottoService.getProdottoByGenere(genere);
 //        return ResponseEntity.ok().body(prodotto);
 //    }
-
-    @GetMapping
-    public ResponseEntity<?> getAllProdotti(){
-        List<Prodotto> prodotto = prodottoService.getAllProdotti();
-        return ResponseEntity.ok().body(prodotto);
-    }
-
-    @GetMapping("/genere/{genere}")
-    public List<Prodotto> getProdottiByGenere(@PathVariable String genere) {
-        return prodottoService.getProdottiByGenere(genere);
-    }
-
-    @GetMapping("/categoria/{categoria}")
-    public List<Prodotto> getProdottiByCategoria(@PathVariable String categoria) {
-        return prodottoService.getProdottiByCategoria(categoria);
-    }
-
-    @GetMapping("/bestSeller/{bestSeller}")
-    public List<Prodotto> getProdottiByBestSeller(@PathVariable Integer bestSeller) {
-        return prodottoService.getProdottiByBestSeller(bestSeller);
-    }
-
-    @GetMapping("/nuovoArrivo")
-    public List<Prodotto> getNuoviArrivi() {
-        return prodottoService.getNuoviArrivi();
-    }
-
-    @PostMapping
-    public ResponseEntity<List<Prodotto>> createProdotti(@RequestBody List<ProdottoDTO> prodottiDTO) {
-        List<Prodotto> prodottiSalvati = prodottiDTO.stream()
-                .map(prodottoService::convertitoreDTO)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(prodottiSalvati);
-    }
-
-
-}
