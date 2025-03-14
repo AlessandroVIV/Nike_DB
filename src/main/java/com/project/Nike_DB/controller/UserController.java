@@ -1,8 +1,7 @@
 package com.project.Nike_DB.controller;
 
-import com.project.Nike_DB.model.Utente;
+import com.project.Nike_DB.model.User;
 import com.project.Nike_DB.repository.UserRepository;
-import org.apache.catalina.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,15 +22,15 @@ public class UserController {
 
     // Enpoint per registrazione nuovo utente
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody Utente utente){
+    public ResponseEntity<String> register(@RequestBody User user){
 
-        if(userRepository.findByUsername(utente.getUsername()).isPresent()){
+        if(userRepository.findByUsername(user.getUsername()).isPresent()){
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Username giù in uso!");
         }
 
-        utente.setSecretKey(UUID.randomUUID().toString());
+        user.setSecretKey(UUID.randomUUID().toString());
 
-        userRepository.save(utente);
+        userRepository.save(user);
 
         return ResponseEntity.ok("Utente registrato con successo!");
 
@@ -39,9 +38,9 @@ public class UserController {
 
     // Enpoint per login utente
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody Utente loginUser){
+    public ResponseEntity<Map<String, String>> login(@RequestBody User loginUser){
 
-        Optional<Utente> userSuDb = userRepository.findByUsername(loginUser.getUsername());
+        Optional<User> userSuDb = userRepository.findByUsername(loginUser.getUsername());
 
         if (userSuDb.isPresent() && userSuDb.get().getPassword().equals(loginUser.getPassword())) {
             return ResponseEntity.ok(Collections.singletonMap("secretKey", userSuDb.get().getSecretKey()));
@@ -51,7 +50,7 @@ public class UserController {
 
     }
     
-    // Enpoint protetto dal login
+    // Enpoint protetto dal login (non che serva al 100%, ma è un metodo in più per verificare l'utente)
     @GetMapping("/protected")
     public ResponseEntity<String> protectedEndpoint(@RequestHeader (value = "Secret-Key", required = false) String secretKey){
 

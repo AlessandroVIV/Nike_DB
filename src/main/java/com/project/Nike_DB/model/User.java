@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "utenti")
-public class Utente {
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,14 +16,26 @@ public class Utente {
     @Column(nullable = false)
     private String password;
 
+    @Column(nullable = false)
+    private String email;
+
+    @Column(nullable = false)
+    private String indirizzo;
+
+    @Column(nullable = false)
+    private String telefono;
+
     private String secretKey;
 
-    public Utente() {}
+    public User(){}
 
-    public Utente(Long id, String username, String password, String secretKey) {
+    public User(Long id, String username, String password, String email, String indirizzo, String telefono, String secretKey) {
         this.id = id;
         this.username = username;
         this.password = password;
+        this.email = email;
+        this.indirizzo = indirizzo;
+        this.telefono = telefono;
         this.secretKey = secretKey;
     }
 
@@ -49,6 +61,30 @@ public class Utente {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getIndirizzo() {
+        return indirizzo;
+    }
+
+    public void setIndirizzo(String indirizzo) {
+        this.indirizzo = indirizzo;
+    }
+
+    public String getTelefono() {
+        return telefono;
+    }
+
+    public void setTelefono(String telefono) {
+        this.telefono = telefono;
     }
 
     public String getSecretKey() {

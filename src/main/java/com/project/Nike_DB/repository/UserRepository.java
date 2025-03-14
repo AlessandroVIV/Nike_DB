@@ -1,14 +1,14 @@
 package com.project.Nike_DB.repository;
 
-import com.project.Nike_DB.model.Utente;
+import com.project.Nike_DB.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface UserRepository extends JpaRepository<Utente, Long> {
+public interface UserRepository extends JpaRepository<User, Long> {
 
-    Optional<Utente> findByUsername(String username);
+    Optional<User> findByUsername(String username);
 
-    Optional<Utente> findBySecretKey(String secretKey);
+    Optional<User> findBySecretKey(String secretKey);
 
 }
