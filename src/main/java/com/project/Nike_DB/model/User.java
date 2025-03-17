@@ -1,5 +1,7 @@
 package com.project.Nike_DB.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 @Entity
@@ -26,6 +28,10 @@ public class User {
     private String telefono;
 
     private String secretKey;
+
+    @OneToOne(mappedBy = "utente", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private Carrello carrello;
 
     public User(){}
 
@@ -93,6 +99,14 @@ public class User {
 
     public void setSecretKey(String secretKey) {
         this.secretKey = secretKey;
+    }
+
+    public Carrello getCarrello() {
+        return carrello;
+    }
+
+    public void setCarrello(Carrello carrello) {
+        this.carrello = carrello;
     }
 
 }

@@ -1,6 +1,8 @@
 package com.project.Nike_DB.controller;
 
+import com.project.Nike_DB.model.Carrello;
 import com.project.Nike_DB.model.User;
+import com.project.Nike_DB.repository.CarrelloRepository;
 import com.project.Nike_DB.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,8 +18,11 @@ public class UserController {
 
     private UserRepository userRepository;
 
-    public UserController(UserRepository userRepository){
+    private CarrelloRepository carrelloRepository;
+
+    public UserController(UserRepository userRepository, CarrelloRepository carrelloRepository){
         this.userRepository = userRepository;
+        this.carrelloRepository = carrelloRepository;
     }
 
     // Enpoint per registrazione nuovo utente
@@ -32,7 +37,10 @@ public class UserController {
 
         userRepository.save(user);
 
-        return ResponseEntity.ok("Utente registrato con successo!");
+        Carrello carrello = new Carrello(user);
+        carrelloRepository.save(carrello);
+
+        return ResponseEntity.ok("Utente registrato con successo + carrello creato");
 
     }
 
