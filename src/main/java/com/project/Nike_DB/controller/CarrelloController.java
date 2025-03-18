@@ -2,8 +2,10 @@ package com.project.Nike_DB.controller;
 
 import com.project.Nike_DB.model.Carrello;
 import com.project.Nike_DB.model.CarrelloItem;
+import com.project.Nike_DB.model.Ordine;
 import com.project.Nike_DB.repository.CarrelloItemRepository;
 import com.project.Nike_DB.repository.CarrelloRepository;
+import com.project.Nike_DB.repository.OrdineRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,9 +21,12 @@ public class CarrelloController {
 
     private final CarrelloItemRepository carrelloItemRepository;
 
-    public CarrelloController(CarrelloRepository carrelloRepository, CarrelloItemRepository carrelloItemRepository){
+    private final OrdineRepository ordineRepository;
+
+    public CarrelloController(CarrelloRepository carrelloRepository, CarrelloItemRepository carrelloItemRepository, OrdineRepository ordineRepository){
         this.carrelloRepository = carrelloRepository;
         this.carrelloItemRepository = carrelloItemRepository;
+        this.ordineRepository = ordineRepository;
     }
 
     @GetMapping("/{utenteId}")
@@ -36,7 +41,6 @@ public class CarrelloController {
         else{
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Carrello non trovato");
         }
-
 
     }
 
@@ -60,6 +64,37 @@ public class CarrelloController {
         }
 
     }
+
+    @PostMapping("/{utenteId}/checkout")
+    public ResponseEntity<?> checkout(@PathVariable Long utenteId) {
+
+        Optional<Carrello> carrelloOpt = carrelloRepository.findByUtenteId(utenteId);
+
+        if (carrelloOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Carrello non trovato!");
+        }
+
+        Carrello carrello = carrelloOpt.get();
+
+        List<CarrelloItem> prodotti = carrelloItemRepository.findByCarrelloId(carrello.getId());
+
+        if (prodotti.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Il carrello è vuoto!");
+        }
+
+        for (CarrelloItem item : prodotti) {
+            Ordine ordine = new Ordine(carrello.getUtente(), item.getProdotto(), item.getTaglia(), item.getColore(), item.getQuantita(), item.getPrezzo());
+            ordineRepository.save(ordine);
+        }
+
+        carrello.getProdotti().clear();
+        carrelloRepository.save(carrello);
+        carrelloItemRepository.deleteAll(prodotti);
+
+        return ResponseEntity.ok("Acquisto completato, gli ordini sono stati salvati e il carrello svuotato.");
+
+    }
+
 
 
 

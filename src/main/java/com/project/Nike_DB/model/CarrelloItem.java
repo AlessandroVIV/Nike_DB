@@ -24,14 +24,17 @@ public class CarrelloItem {
 
     private int quantita;
 
+    private double prezzo;
+
     public CarrelloItem(){}
 
-    public CarrelloItem(Carrello carrello, String prodotto, String taglia, String colore, int quantita) {
+    public CarrelloItem(Carrello carrello, String prodotto, String taglia, String colore, int quantita, double prezzo) {
         this.carrello = carrello;
         this.prodotto = prodotto;
         this.taglia = taglia;
         this.colore = colore;
         this.quantita = quantita;
+        this.prezzo = prezzo;
     }
 
     public Long getId() {
@@ -80,6 +83,14 @@ public class CarrelloItem {
 
     public void setQuantita(int quantita) {
         this.quantita = quantita;
+    }
+
+    public double getPrezzo() {
+        return prezzo;
+    }
+
+    public void setPrezzo(double prezzo) {
+        this.prezzo = prezzo;
     }
 
 }
