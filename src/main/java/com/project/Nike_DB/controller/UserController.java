@@ -8,10 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 public class UserController {
@@ -46,17 +43,22 @@ public class UserController {
 
     // Enpoint per login utente
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody User loginUser){
+    public ResponseEntity<Map<String, Object>> login(@RequestBody User loginUser) {
 
         Optional<User> userSuDb = userRepository.findByUsername(loginUser.getUsername());
 
-        if (userSuDb.isPresent() && userSuDb.get().getPassword().equals(loginUser.getPassword())) {
-            return ResponseEntity.ok(Collections.singletonMap("secretKey", userSuDb.get().getSecretKey()));
+        if(userSuDb.isPresent() && userSuDb.get().getPassword().equals(loginUser.getPassword())) {
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("secretKey", userSuDb.get().getSecretKey());
+            response.put("id", userSuDb.get().getId());
+
+            return ResponseEntity.ok(response);
         }
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Collections.singletonMap("error", "Credenziali errate!"));
-
     }
+
     
     // Enpoint protetto dal login (non che serva al 100%, ma è un metodo in più per verificare l'utente)
     @GetMapping("/protected")

@@ -10,7 +10,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -30,18 +32,23 @@ public class CarrelloController {
     }
 
     @GetMapping("/{utenteId}")
-    public ResponseEntity<?> getCarrello(@PathVariable Long utenteId){
+    public ResponseEntity<?> getCarrello(@PathVariable Long utenteId) {
 
-        Optional<Carrello> carrello = carrelloRepository.findByUtenteId(utenteId);
+        Optional<Carrello> carrelloOpt = carrelloRepository.findByUtenteId(utenteId);
 
-        if(carrello.isPresent()){
-            List<CarrelloItem> prodotti = carrelloItemRepository.findByCarrelloId(carrello.get().getId());
-            return ResponseEntity.ok(prodotti);
-        }
-        else{
+        if(carrelloOpt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Carrello non trovato");
         }
 
+        Carrello carrello = carrelloOpt.get();
+
+        List<CarrelloItem> prodotti = carrelloItemRepository.findByCarrelloId(carrello.getId());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("carrelloId", carrello.getId());
+        response.put("prodotti", prodotti);
+
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/{carrelloId}/aggiungi")
@@ -62,6 +69,73 @@ public class CarrelloController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Carrello non trovato");
 
         }
+
+    }
+
+    @PostMapping("/item/{itemId}/incrementa")
+    public ResponseEntity<?> incrementaQuantita(@PathVariable Long itemId) {
+        Optional<CarrelloItem> item = carrelloItemRepository.findById(itemId);
+
+        if (item.isPresent()) {
+            CarrelloItem prodotto = item.get();
+            prodotto.setQuantita(prodotto.getQuantita() + 1);
+            CarrelloItem aggiornato = carrelloItemRepository.save(prodotto);
+            return ResponseEntity.ok(aggiornato);
+        }
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Prodotto non trovato");
+    }
+
+    @PostMapping("/item/{itemId}/decrementa")
+
+    public ResponseEntity<?> decrementaQuantita(@PathVariable Long itemId) {
+
+        Optional<CarrelloItem> item = carrelloItemRepository.findById(itemId);
+
+        if (item.isPresent()) {
+
+            CarrelloItem prodotto = item.get();
+
+            if (prodotto.getQuantita() <= 1) {
+
+                carrelloItemRepository.delete(prodotto);
+                return ResponseEntity.ok().body(Map.of(
+                        "eliminato", true,
+                        "itemId", prodotto.getId()
+                ));
+            }
+            else {
+                prodotto.setQuantita(prodotto.getQuantita() - 1);
+                CarrelloItem aggiornato = carrelloItemRepository.save(prodotto);
+                return ResponseEntity.ok(Map.of(
+                        "eliminato", false,
+                        "item", aggiornato
+                ));
+            }
+        }
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Prodotto non trovato");
+    }
+
+    @DeleteMapping("/{utenteId}/svuota")
+    public ResponseEntity<?> svuotaCarrello(@PathVariable Long utenteId) {
+
+        Optional<Carrello> carrelloOpt = carrelloRepository.findByUtenteId(utenteId);
+
+        if(carrelloOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Carrello non trovato!");
+        }
+
+        Carrello carrello = carrelloOpt.get();
+
+        List<CarrelloItem> prodotti = carrelloItemRepository.findByCarrelloId(carrello.getId());
+
+        carrelloItemRepository.deleteAll(prodotti);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Carrello svuotato");
+
+        return ResponseEntity.ok(response);
 
     }
 
@@ -94,11 +168,5 @@ public class CarrelloController {
         return ResponseEntity.ok("Acquisto completato, gli ordini sono stati salvati e il carrello svuotato.");
 
     }
-
-
-
-
-
-
 
 }
