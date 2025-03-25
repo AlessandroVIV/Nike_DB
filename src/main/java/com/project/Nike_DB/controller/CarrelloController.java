@@ -1,5 +1,6 @@
 package com.project.Nike_DB.controller;
 
+import com.project.Nike_DB.DTO.OrdineDTO;
 import com.project.Nike_DB.model.Carrello;
 import com.project.Nike_DB.model.CarrelloItem;
 import com.project.Nike_DB.model.Ordine;
@@ -85,6 +86,7 @@ public class CarrelloController {
         if (item.isPresent()) {
             CarrelloItem prodotto = item.get();
             prodotto.setQuantita(prodotto.getQuantita() + 1);
+            prodotto.setPrezzoTotale(prodotto.getPrezzo() * prodotto.getQuantita());
             CarrelloItem aggiornato = carrelloItemRepository.save(prodotto);
             return ResponseEntity.ok(aggiornato);
         }
@@ -184,35 +186,48 @@ public class CarrelloController {
         return ResponseEntity.ok("Prodotti migrati correttamente!");
     }
 
-
-
     @PostMapping("/{utenteId}/checkout")
-    public ResponseEntity<?> checkout(@PathVariable Long utenteId) {
+    public ResponseEntity<?> checkout(@PathVariable Long utenteId,
+            @RequestBody List<OrdineDTO> ordiniDTO,
+            @RequestHeader("Secret-Key") String secretKey) {
 
-        Optional<Carrello> carrelloOpt = carrelloRepository.findByUtenteId(utenteId);
+        Optional<User> userOpt = userRepository.findById(utenteId);
 
-        if (carrelloOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Carrello non trovato!");
+        if (userOpt.isEmpty() || !userOpt.get().getSecretKey().equals(secretKey)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Chiave non valida");
         }
 
-        Carrello carrello = carrelloOpt.get();
+        User user = userOpt.get();
 
-        List<CarrelloItem> prodotti = carrelloItemRepository.findByCarrelloId(carrello.getId());
-
-        if (prodotti.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Il carrello è vuoto!");
+        if (ordiniDTO == null || ordiniDTO.isEmpty()) {
+            return ResponseEntity.badRequest().body("Il carrello è vuoto!");
         }
 
-        for (CarrelloItem item : prodotti) {
-            Ordine ordine = new Ordine(carrello.getUtente(), item.getProdotto(), item.getTaglia(), item.getColore(), item.getQuantita(), item.getPrezzo());
+        for (OrdineDTO dto : ordiniDTO) {
+            Ordine ordine = new Ordine(
+                    user,
+                    dto.getProdotto(),
+                    dto.getTaglia(),
+                    dto.getColore(),
+                    dto.getQuantita(),
+                    dto.getPrezzoTotale()
+            );
+
             ordineRepository.save(ordine);
         }
 
-        carrello.getProdotti().clear();
-        carrelloRepository.save(carrello);
-        carrelloItemRepository.deleteAll(prodotti);
 
-        return ResponseEntity.ok("Acquisto completato, gli ordini sono stati salvati e il carrello svuotato.");
+        Optional<Carrello> carrelloOpt = carrelloRepository.findByUtenteId(utenteId);
+
+        carrelloOpt.ifPresent(c -> {
+            List<CarrelloItem> prodotti = carrelloItemRepository.findByCarrelloId(c.getId());
+            carrelloItemRepository.deleteAll(prodotti);
+            c.getProdotti().clear();
+            carrelloRepository.save(c);
+        });
+
+        return ResponseEntity.ok(Map.of("message", "Ordine completato con successo"));
+
 
     }
 

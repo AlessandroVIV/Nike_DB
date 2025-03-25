@@ -1,58 +1,24 @@
-package com.project.Nike_DB.model;
+package com.project.Nike_DB.DTO;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
-
-@Entity
-@Table(name = "carrello_item")
-public class CarrelloItem {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @ManyToOne
-    @JoinColumn(name = "carrello_id", nullable = false)
-    @JsonIgnore
-    private Carrello carrello;
+public class OrdineDTO {
 
     private String prodotto;
-
     private String taglia;
-
     private String colore;
-
     private int quantita;
-
-    private double prezzo;
-
+    private double prezzoUnitario;
     private double prezzoTotale;
 
-    public CarrelloItem(){}
+    public OrdineDTO() {
+    }
 
-    public CarrelloItem(Carrello carrello, String prodotto, String taglia, String colore, int quantita, double prezzo) {
-        this.carrello = carrello;
+    public OrdineDTO(String prodotto, String taglia, String colore, int quantita, double prezzoUnitario, double prezzoTotale) {
         this.prodotto = prodotto;
         this.taglia = taglia;
         this.colore = colore;
         this.quantita = quantita;
-        this.prezzo = prezzo;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Carrello getCarrello() {
-        return carrello;
-    }
-
-    public void setCarrello(Carrello carrello) {
-        this.carrello = carrello;
+        this.prezzoUnitario = prezzoUnitario;
+        this.prezzoTotale = prezzoTotale;
     }
 
     public String getProdotto() {
@@ -87,12 +53,12 @@ public class CarrelloItem {
         this.quantita = quantita;
     }
 
-    public double getPrezzo() {
-        return prezzo;
+    public double getPrezzoUnitario() {
+        return prezzoUnitario;
     }
 
-    public void setPrezzo(double prezzo) {
-        this.prezzo = prezzo;
+    public void setPrezzoUnitario(double prezzoUnitario) {
+        this.prezzoUnitario = prezzoUnitario;
     }
 
     public double getPrezzoTotale() {
