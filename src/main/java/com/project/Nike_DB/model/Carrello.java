@@ -2,7 +2,6 @@ package com.project.Nike_DB.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -23,6 +22,34 @@ public class Carrello {
     @OneToMany(mappedBy = "carrello", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<CarrelloItem> prodotti;
+
+    public void aggiungiProdotto(String nome, String taglia, String colore, double prezzo, int quantita) {
+
+        for(CarrelloItem item : prodotti) {
+
+            if(item.getProdotto().equals(nome) &&
+                    item.getTaglia().equals(taglia) &&
+                    item.getColore().equals(colore)) {
+
+                item.setQuantita(item.getQuantita() + quantita);
+                return;
+
+            }
+
+        }
+
+        CarrelloItem nuovoItem = new CarrelloItem();
+        nuovoItem.setProdotto(nome);
+        nuovoItem.setTaglia(taglia);
+        nuovoItem.setColore(colore);
+        nuovoItem.setPrezzo(prezzo);
+        nuovoItem.setQuantita(quantita);
+        nuovoItem.setCarrello(this);
+
+        prodotti.add(nuovoItem);
+
+    }
+
 
     public Carrello() {}
 

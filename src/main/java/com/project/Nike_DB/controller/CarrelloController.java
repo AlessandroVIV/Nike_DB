@@ -3,9 +3,11 @@ package com.project.Nike_DB.controller;
 import com.project.Nike_DB.model.Carrello;
 import com.project.Nike_DB.model.CarrelloItem;
 import com.project.Nike_DB.model.Ordine;
+import com.project.Nike_DB.model.User;
 import com.project.Nike_DB.repository.CarrelloItemRepository;
 import com.project.Nike_DB.repository.CarrelloRepository;
 import com.project.Nike_DB.repository.OrdineRepository;
+import com.project.Nike_DB.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,10 +27,14 @@ public class CarrelloController {
 
     private final OrdineRepository ordineRepository;
 
-    public CarrelloController(CarrelloRepository carrelloRepository, CarrelloItemRepository carrelloItemRepository, OrdineRepository ordineRepository){
+    private final UserRepository userRepository;
+
+    public CarrelloController(CarrelloRepository carrelloRepository, CarrelloItemRepository carrelloItemRepository,
+                              OrdineRepository ordineRepository, UserRepository userRepository){
         this.carrelloRepository = carrelloRepository;
         this.carrelloItemRepository = carrelloItemRepository;
         this.ordineRepository = ordineRepository;
+        this.userRepository = userRepository;
     }
 
     @GetMapping("/{utenteId}")
@@ -87,7 +93,6 @@ public class CarrelloController {
     }
 
     @PostMapping("/item/{itemId}/decrementa")
-
     public ResponseEntity<?> decrementaQuantita(@PathVariable Long itemId) {
 
         Optional<CarrelloItem> item = carrelloItemRepository.findById(itemId);
@@ -138,6 +143,48 @@ public class CarrelloController {
         return ResponseEntity.ok(response);
 
     }
+
+    @PostMapping("/{utenteId}/migra")
+    public ResponseEntity<?> migraCarrelloGuest(
+            @PathVariable Long utenteId,
+            @RequestBody List<Map<String, Object>> prodotti,
+            @RequestHeader("Secret-Key") String secretKey) {
+
+        Optional<User> userOpt = userRepository.findById(utenteId);
+
+        if (userOpt.isEmpty() || !userOpt.get().getSecretKey().equals(secretKey)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Chiave non valida");
+        }
+
+        Optional<Carrello> carrelloOpt = carrelloRepository.findByUtenteId(utenteId);
+        if (carrelloOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Carrello non trovato");
+        }
+
+        Carrello carrello = carrelloOpt.get();
+
+        for (Map<String, Object> item : prodotti) {
+            try {
+                String nome = (String) item.get("prodotto");
+                String taglia = (String) item.get("taglia");
+                String colore = (String) item.get("colore");
+                int quantita = ((Number) item.get("quantita")).intValue();
+                double prezzo = ((Number) item.get("prezzo")).doubleValue();
+
+                carrello.aggiungiProdotto(nome, taglia, colore, prezzo, quantita);
+
+            } catch (Exception e) {
+                return ResponseEntity
+                        .status(HttpStatus.BAD_REQUEST)
+                        .body("Errore durante la migrazione: dati non validi -> " + item.toString());
+            }
+        }
+
+        carrelloRepository.save(carrello);
+        return ResponseEntity.ok("Prodotti migrati correttamente!");
+    }
+
+
 
     @PostMapping("/{utenteId}/checkout")
     public ResponseEntity<?> checkout(@PathVariable Long utenteId) {

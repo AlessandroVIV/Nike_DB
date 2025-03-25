@@ -47,19 +47,27 @@ public class UserController {
 
         Optional<User> userSuDb = userRepository.findByUsername(loginUser.getUsername());
 
-        if(userSuDb.isPresent() && userSuDb.get().getPassword().equals(loginUser.getPassword())) {
+        if (userSuDb.isPresent() && userSuDb.get().getPassword().equals(loginUser.getPassword())) {
+
+            User user = userSuDb.get();
+
+            carrelloRepository.findByUtenteId(user.getId()).orElseGet(() -> {
+                Carrello nuovoCarrello = new Carrello(user);
+                return carrelloRepository.save(nuovoCarrello);
+            });
 
             Map<String, Object> response = new HashMap<>();
-            response.put("secretKey", userSuDb.get().getSecretKey());
-            response.put("id", userSuDb.get().getId());
+            response.put("secretKey", user.getSecretKey());
+            response.put("id", user.getId());
 
             return ResponseEntity.ok(response);
         }
 
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Collections.singletonMap("error", "Credenziali errate!"));
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(Collections.singletonMap("error", "Credenziali errate!"));
     }
 
-    
+
     // Enpoint protetto dal login (non che serva al 100%, ma è un metodo in più per verificare l'utente)
     @GetMapping("/protected")
     public ResponseEntity<String> protectedEndpoint(@RequestHeader (value = "Secret-Key", required = false) String secretKey){
