@@ -8,17 +8,19 @@ public class OrdineDTO {
     private int quantita;
     private double prezzoUnitario;
     private double prezzoTotale;
+    private String immagineUrl;
 
     public OrdineDTO() {
     }
 
-    public OrdineDTO(String prodotto, String taglia, String colore, int quantita, double prezzoUnitario, double prezzoTotale) {
+    public OrdineDTO(String prodotto, String taglia, String colore, int quantita, double prezzoUnitario, double prezzoTotale, String immagineUrl) {
         this.prodotto = prodotto;
         this.taglia = taglia;
         this.colore = colore;
         this.quantita = quantita;
         this.prezzoUnitario = prezzoUnitario;
         this.prezzoTotale = prezzoTotale;
+        this.immagineUrl = immagineUrl;
     }
 
     public String getProdotto() {
@@ -67,6 +69,14 @@ public class OrdineDTO {
 
     public void setPrezzoTotale(double prezzoTotale) {
         this.prezzoTotale = prezzoTotale;
+    }
+
+    public String getImmagineUrl() {
+        return immagineUrl;
+    }
+
+    public void setImmagineUrl(String immagineUrl) {
+        this.immagineUrl = immagineUrl;
     }
 
 }

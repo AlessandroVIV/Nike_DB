@@ -210,7 +210,8 @@ public class CarrelloController {
                     dto.getTaglia(),
                     dto.getColore(),
                     dto.getQuantita(),
-                    dto.getPrezzoTotale()
+                    dto.getPrezzoTotale(),
+                    dto.getImmagineUrl()
             );
 
             ordineRepository.save(ordine);

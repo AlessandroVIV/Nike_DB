@@ -5,10 +5,7 @@ import com.project.Nike_DB.repository.OrdineRepository;
 import com.project.Nike_DB.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -25,20 +22,23 @@ public class OrdineController {
     }
 
     @GetMapping("/{utenteId}")
-    public ResponseEntity<?> getOrdini(@PathVariable Long utenteId){
+    public ResponseEntity<?> getOrdini(@PathVariable Long utenteId, @RequestHeader("Secret-Key") String secretKey) {
 
-        if(userRepository.findById(utenteId).isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Utente non trovato!");
+        var userOpt = userRepository.findById(utenteId);
+
+        if (userOpt.isEmpty() || !userOpt.get().getSecretKey().equals(secretKey)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Chiave non valida");
         }
 
         List<Ordine> ordini = ordineRepository.findByUtenteId(utenteId);
 
-        if(ordini.isEmpty()){
+        if (ordini.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Nessun ordine trovato.");
         }
 
         return ResponseEntity.ok(ordini);
 
     }
+
 
 }

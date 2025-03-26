@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "ordini")
@@ -27,11 +28,13 @@ public class Ordine {
     @Column(name = "prezzo_totale")
     private BigDecimal prezzoTotale;
 
-    private LocalDate dataOrdine;
+    private LocalDateTime dataOrdine;
+
+    private String immagineUrl;
 
     public Ordine() {}
 
-    public Ordine(User utente, String prodotto, String taglia, String colore, int quantita, double prezzoTotale) {
+    public Ordine(User utente, String prodotto, String taglia, String colore, int quantita, double prezzoTotale, String immagineUrl) {
 
         this.utente = utente;
         this.prodotto = prodotto;
@@ -46,7 +49,9 @@ public class Ordine {
 
         this.prezzoTotale = totale.setScale(2, RoundingMode.HALF_UP);
 
-        this.dataOrdine = LocalDate.now();
+        this.dataOrdine = LocalDateTime.now();
+
+        this.immagineUrl = immagineUrl;
 
     }
 
@@ -110,11 +115,20 @@ public class Ordine {
         this.prezzoTotale = prezzoTotale;
     }
 
-    public LocalDate getDataOrdine() {
+    public LocalDateTime getDataOrdine() {
         return dataOrdine;
     }
 
-    public void setDataOrdine(LocalDate dataOrdine) {
+    public void setDataOrdine(LocalDateTime dataOrdine) {
         this.dataOrdine = dataOrdine;
     }
+
+    public String getImmagineUrl() {
+        return immagineUrl;
+    }
+
+    public void setImmagineUrl(String immagineUrl) {
+        this.immagineUrl = immagineUrl;
+    }
+
 }
