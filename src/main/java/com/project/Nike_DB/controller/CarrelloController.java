@@ -204,6 +204,7 @@ public class CarrelloController {
         }
 
         for (OrdineDTO dto : ordiniDTO) {
+
             Ordine ordine = new Ordine(
                     user,
                     dto.getProdotto(),
@@ -215,8 +216,8 @@ public class CarrelloController {
             );
 
             ordineRepository.save(ordine);
-        }
 
+        }
 
         Optional<Carrello> carrelloOpt = carrelloRepository.findByUtenteId(utenteId);
 
