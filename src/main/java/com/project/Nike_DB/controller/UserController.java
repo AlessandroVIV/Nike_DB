@@ -59,6 +59,9 @@ public class UserController {
             Map<String, Object> response = new HashMap<>();
             response.put("secretKey", user.getSecretKey());
             response.put("id", user.getId());
+            response.put("email", user.getEmail());
+            response.put("telefono", user.getTelefono());
+            response.put("indirizzo", user.getIndirizzo());
 
             return ResponseEntity.ok(response);
         }
@@ -66,6 +69,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(Collections.singletonMap("error", "Credenziali errate!"));
     }
+
 
 
     // Enpoint protetto dal login (non che serva al 100%, ma è un metodo in più per verificare l'utente)
