@@ -59,25 +59,37 @@ public class CarrelloController {
     }
 
     @PostMapping("/{carrelloId}/aggiungi")
-    public ResponseEntity<?> aggiungiProdotto(@PathVariable Long carrelloId, @RequestBody CarrelloItem nuovoProdotto){
+    public ResponseEntity<?> aggiungiProdotto(@PathVariable Long carrelloId, @RequestBody CarrelloItem nuovoProdotto) {
 
-        Optional<Carrello> carrello = carrelloRepository.findById(carrelloId);
+        Optional<Carrello> carrelloOpt = carrelloRepository.findById(carrelloId);
 
-        if(carrello.isPresent()){
-
-            nuovoProdotto.setCarrello(carrello.get());
-
-            carrelloItemRepository.save(nuovoProdotto);
-
-            return ResponseEntity.ok("Prodotto aggiunto al carrello con successo!");
-        }
-        else {
-
+        if (carrelloOpt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Carrello non trovato");
-
         }
 
+        Carrello carrello = carrelloOpt.get();
+
+        List<CarrelloItem> prodotti = carrelloItemRepository.findByCarrelloId(carrello.getId());
+
+        for (CarrelloItem item : prodotti) {
+
+            if(item.getProdotto().equals(nuovoProdotto.getProdotto()) && item.getTaglia().equals(nuovoProdotto.getTaglia()) && item.getColore().equals(nuovoProdotto.getColore())) {
+                int nuovaQuantita = item.getQuantita() + nuovoProdotto.getQuantita();
+                item.setQuantita(nuovaQuantita);
+                item.setPrezzoTotale(item.getPrezzo() * nuovaQuantita);
+
+                carrelloItemRepository.save(item);
+                return ResponseEntity.ok("Quantità aggiornata nel carrello");
+            }
+        }
+
+        nuovoProdotto.setCarrello(carrello);
+        nuovoProdotto.setPrezzoTotale(nuovoProdotto.getPrezzo() * nuovoProdotto.getQuantita());
+
+        carrelloItemRepository.save(nuovoProdotto);
+        return ResponseEntity.ok("Prodotto aggiunto al carrello");
     }
+
 
     @PostMapping("/item/{itemId}/incrementa")
     public ResponseEntity<?> incrementaQuantita(@PathVariable Long itemId) {
