@@ -32,6 +32,8 @@ public class UserController {
 
         user.setSecretKey(UUID.randomUUID().toString());
 
+
+
         userRepository.save(user);
 
         Carrello carrello = new Carrello(user);
