@@ -1,0 +1,23 @@
+SET FOREIGN_KEY_CHECKS = 0;
+
+DELETE FROM colori_disponibili;
+DELETE FROM immagini;
+DELETE FROM recensioni;
+DELETE FROM taglie_disponibili;
+DELETE FROM prodotti;
+
+SET FOREIGN_KEY_CHECKS = 1;
+
+ALTER TABLE colori_disponibili AUTO_INCREMENT = 1;
+ALTER TABLE immagini AUTO_INCREMENT = 1;
+ALTER TABLE recensioni AUTO_INCREMENT = 1;
+ALTER TABLE taglie_disponibili AUTO_INCREMENT = 1;
+ALTER TABLE prodotti AUTO_INCREMENT = 1;
+
+RIPASSA SQL!
+
+Ho committato un fix per la colonna dei bestSeller che dava "null" (non l'avevo formattata col "trova e sostituisci") e ho inserito tutte e 50 le scarpe nel database tramite lo swagger.
+
+Query di azzeramento carrelli e utenti
+
+ 

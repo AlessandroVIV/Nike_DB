@@ -6,6 +6,7 @@ import com.project.Nike_DB.repository.CarrelloRepository;
 import com.project.Nike_DB.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -17,9 +18,12 @@ public class UserController {
 
     private CarrelloRepository carrelloRepository;
 
-    public UserController(UserRepository userRepository, CarrelloRepository carrelloRepository){
+    private PasswordEncoder passwordEncoder;
+
+    public UserController(UserRepository userRepository, CarrelloRepository carrelloRepository, PasswordEncoder passwordEncoder){
         this.userRepository = userRepository;
         this.carrelloRepository = carrelloRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     // Enpoint per registrazione nuovo utente
@@ -32,9 +36,12 @@ public class UserController {
 
         user.setSecretKey(UUID.randomUUID().toString());
 
-
+        String hashedPassword = passwordEncoder.encode(user.getPassword());
+        user.setPassword(hashedPassword);
+        user.setSecretKey(UUID.randomUUID().toString());
 
         userRepository.save(user);
+
 
         Carrello carrello = new Carrello(user);
         carrelloRepository.save(carrello);
@@ -49,14 +56,11 @@ public class UserController {
 
         Optional<User> userSuDb = userRepository.findByUsername(loginUser.getUsername());
 
-        if (userSuDb.isPresent() && userSuDb.get().getPassword().equals(loginUser.getPassword())) {
+        if (userSuDb.isPresent() && passwordEncoder.matches(loginUser.getPassword(), userSuDb.get().getPassword())) {
 
             User user = userSuDb.get();
 
-            carrelloRepository.findByUtenteId(user.getId()).orElseGet(() -> {
-                Carrello nuovoCarrello = new Carrello(user);
-                return carrelloRepository.save(nuovoCarrello);
-            });
+            carrelloRepository.findByUtenteId(user.getId()).orElseGet(() -> carrelloRepository.save(new Carrello(user)));
 
             Map<String, Object> response = new HashMap<>();
             response.put("secretKey", user.getSecretKey());
@@ -71,8 +75,6 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(Collections.singletonMap("error", "Credenziali errate!"));
     }
-
-
 
     // Enpoint protetto dal login (non che serva al 100%, ma è un metodo in più per verificare l'utente)
     @GetMapping("/protected")
